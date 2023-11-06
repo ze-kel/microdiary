@@ -7,6 +7,9 @@ export const messages = sqliteTable('messages', {
   date: integer('messageDate').notNull(),
 });
 
-const MessageType = messages.$inferSelect;
+export type IMessage = typeof messages.$inferSelect;
 
-export type IMessage = typeof MessageType;
+export const settings = sqliteTable('users', {
+  chatId: integer('chatId').notNull().primaryKey(),
+  settings: text('settings', { mode: 'json' }),
+});

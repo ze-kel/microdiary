@@ -5,6 +5,7 @@ import { messages } from './db/schema';
 import 'dotenv/config';
 import { makeExportFile } from './exportProcessor';
 import fs from 'node:fs';
+import { getSettings, setSetting } from './settings';
 
 const token = process.env.TG_TOKEN as string;
 console.log('token', token);
@@ -48,7 +49,7 @@ bot.on('edited_message', async (msg) => {
 });
 
 // Request for export, prepare file and send
-bot.onText(/\/export/, async (msg, match) => {
+bot.onText(/\/export/, async (msg) => {
   const chatId = msg.chat.id;
 
   console.log('Exporting chat', chatId);
@@ -57,7 +58,12 @@ bot.onText(/\/export/, async (msg, match) => {
     where: eq(messages.chatId, chatId),
   });
 
-  const exp = makeExportFile(all);
+  if (!all.length) {
+    bot.sendMessage(chatId, 'nothing to export yet');
+    return;
+  }
+
+  const exp = await makeExportFile(all, chatId);
 
   const tempFileName = `${msg.chat.id}_${new Date().toISOString()}`;
   const tempFilePath = './temp/' + tempFileName + '.md';
@@ -73,4 +79,34 @@ bot.onText(/\/export/, async (msg, match) => {
   fs.unlinkSync(tempFilePath);
 });
 
-console.log('Bot is running');
+bot.onText(/\/settings/, async (msg) => {
+  const chatId = msg.chat.id;
+
+  const settings = await getSettings(chatId);
+
+  const text = Object.entries(settings)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join('\n');
+
+  bot.sendMessage(
+    chatId,
+    'Current settings:\n' + text + '\nTo change use /set key value'
+  );
+});
+
+bot.onText(/\/set (.+) (.+)/, async (msg, match) => {
+  const chatId = msg.chat.id;
+
+  if (!match) {
+    bot.sendMessage(chatId, 'Please provide key and value');
+    return;
+  }
+
+  try {
+    const result = await setSetting({ chatId, key: match[1], value: match[2] });
+
+    bot.sendMessage(chatId, JSON.stringify(result));
+  } catch (e) {
+    bot.sendMessage(chatId, String(e));
+  }
+});

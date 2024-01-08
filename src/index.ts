@@ -17,7 +17,6 @@ const bot = new TelegramBot(token, { polling: true });
 // Got new message, add to db
 bot.on('message', async (msg) => {
   const messageId = msg.message_id;
-  console.log('Received message', messageId);
 
   const message = msg.text;
   if (!message || message.startsWith('/')) return;
@@ -106,6 +105,16 @@ bot.onText(/\/set (.+) (.+)/, async (msg, match) => {
     const result = await setSetting({ chatId, key: match[1], value: match[2] });
 
     bot.sendMessage(chatId, JSON.stringify(result));
+  } catch (e) {
+    bot.sendMessage(chatId, String(e));
+  }
+});
+
+bot.onText(/\/wipe/, async (msg, match) => {
+  const chatId = msg.chat.id;
+
+  try {
+    await db.delete(messages).where(eq(messages.chatId, chatId));
   } catch (e) {
     bot.sendMessage(chatId, String(e));
   }

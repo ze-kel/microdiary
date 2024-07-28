@@ -18,5 +18,5 @@ Test message
 docker build https://github.com/ze-kel/microdiary.git -t microdiary
 touch .env
 echo TG_TOKEN=1337:MICRODIARY > .env
-docker run --env-file "./.env" --mount source=microdiarydb,target=/app/db microdiary
+docker run --detach --env-file "./.env" --mount source=microdiarydb,target=/app/db microdiary
 ```

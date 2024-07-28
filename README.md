@@ -1,4 +1,18 @@
-Self hosted telegram bot for keeping a mircoblog diary. Write notes, then `/export` a markdown file with all your notes separated by days and with timecodes attached.
+Telegram bot for keeping a diary or making quick notes.
+
+Just write messages to save them. Use `/export` to get markdown file with all messages or `/clear` to get markdown file and clear all messages in db.
+
+##### Export example
+
+```
+## 2024
+### July
+##### 28
+19:00
+Test message
+```
+
+##### Running in docker
 
 ```
 docker build https://github.com/ze-kel/microdiary.git -t microdiary

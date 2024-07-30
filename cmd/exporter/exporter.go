@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"os"
 	"strings"
 	"time"
 
@@ -72,7 +73,7 @@ func getDiffInMinutes(t1, t2 int64) float64 {
 }
 
 func getDates(date int64) MessageDates {
-	t1 := time.Unix(date, 0)
+	t1 := time.Unix(date, 0).In(getLocation())
 
 	h, m, _ := t1.Clock()
 
@@ -86,10 +87,11 @@ func getDates(date int64) MessageDates {
 
 }
 
-func getLocation(location string) *time.Location {
-	loc, err := time.LoadLocation(location)
+func getLocation() *time.Location {
+	tz, _ := os.LookupEnv("TIMEZONE")
+	loc, err := time.LoadLocation(tz)
 	if err != nil {
-		log.Printf("Error when parsing location %s", location)
+		log.Printf("Error when parsing location from env (TIMEZONE)", tz)
 		return time.Now().Location()
 	}
 	return loc

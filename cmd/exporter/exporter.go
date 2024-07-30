@@ -43,7 +43,7 @@ func ComposeTextFromMessages(messages []db.Message) string {
 			sb.WriteString(fmt.Sprintf("##### %d \n", mDates.day))
 		}
 
-		if firstMessage || (sameMonth && sameDay && getDiffInMinutes(mDates.date, lastDates.date) > 10) {
+		if firstMessage || !sameDay || getDiffInMinutes(mDates.date, lastDates.date) > 10 {
 			sb.WriteString(fmt.Sprintf("%s \n", mDates.timeFormatted))
 		}
 

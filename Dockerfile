@@ -11,9 +11,8 @@ RUN GOOS=linux go build -o /microdiary ./cmd
 
 FROM gcr.io/distroless/base-debian12 AS build-release-stage
 
-WORKDIR /
+WORKDIR /app
 
 COPY --from=build-stage /microdiary /microdiary
-
 
 ENTRYPOINT ["/microdiary"]

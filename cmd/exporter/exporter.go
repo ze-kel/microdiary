@@ -41,7 +41,7 @@ func ComposeTextFromMessages(messages []db.Message) string {
 		}
 
 		if firstMessage || !sameDay {
-			sb.WriteString(fmt.Sprintf("##### %d \n", mDates.day))
+			sb.WriteString(fmt.Sprintf("##### %d %s\n", mDates.day, mDates.weekday))
 		}
 
 		if firstMessage || !sameDay || getDiffInMinutes(mDates.date, lastDates.date) > 10 {
@@ -61,6 +61,7 @@ func ComposeTextFromMessages(messages []db.Message) string {
 
 type MessageDates struct {
 	day           int
+	weekday       string
 	month         string
 	year          int
 	date          int64
@@ -82,6 +83,7 @@ func getDates(date int64) MessageDates {
 		month:         t1.Month().String(),
 		year:          t1.Year(),
 		date:          date,
+		weekday:       t1.Weekday().String(),
 		timeFormatted: fmt.Sprintf("%02d:%02d", h, m),
 	}
 

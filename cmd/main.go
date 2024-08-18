@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -16,7 +18,7 @@ func init() {
 	}
 }
 
-func main() {
+func initBot() {
 	token, exists := os.LookupEnv("TG_TOKEN")
 	if !exists {
 		panic("NO TOKEN IN ENV")
@@ -34,4 +36,24 @@ func main() {
 	m := mdbot.New(database, token)
 
 	m.Start()
+}
+
+func initHealthCheck() {
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
+
+	log.Print("Running healthcheck on :80 /health")
+
+	err := http.ListenAndServe(":80", nil)
+	if err != nil {
+		fmt.Println("Error starting http server to provide healthcheck. Bot might be running", err)
+	}
+
+}
+
+func main() {
+	go initBot()
+	initHealthCheck()
 }

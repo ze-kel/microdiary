@@ -21,7 +21,16 @@ func main() {
 	if !exists {
 		panic("NO TOKEN IN ENV")
 	}
-	database := db.Init()
+
+	pgUrl, isPg := os.LookupEnv("POSTGRES_URL")
+
+	if isPg {
+		log.Printf("POSTGRES_URL is set, connecting to external db")
+	} else {
+		log.Print("POSTGRES_URL is not set, using local sqlite")
+	}
+
+	database := db.Init(pgUrl)
 	m := mdbot.New(database, token)
 
 	m.Start()

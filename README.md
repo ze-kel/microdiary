@@ -14,14 +14,18 @@ Test message
 
 ##### Running in docker
 
-```
-docker build https://github.com/ze-kel/microdiary.git -t microdiary
-docker run --detach --env-file "./.env" --mount source=microdiarydb,target=/app/db microdiary
-```
-
-.env file example
+.env exa,ple
 
 ```
 TG_TOKEN=1337:MICRODIARY
 TIMEZONE=Europe/Moscow
+# Optional, if you want to store in external pg database
+POSTGRES_URL="postgresql://admin:samplepass@localhost:1234/db"
 ```
+
+Building
+`docker build https://github.com/ze-kel/microdiary.git -t microdiary`
+sqlite
+`docker run --detach --env-file "./.env" --mount source=microdiarydb,target=/app/db microdiary`
+postgres
+`docker run --detach --env-file "./.env" microdiary`

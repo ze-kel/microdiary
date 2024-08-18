@@ -3,6 +3,7 @@ package db
 import (
 	"os"
 
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -15,14 +16,30 @@ type Message struct {
 	Date      int64  `gorm:"not null"`
 }
 
-func Init() *gorm.DB {
+type Tabler interface {
+	TableName() string
+}
+
+func (Message) TableName() string {
+	return "Microdiary_Messages"
+}
+
+func Init(pgUrl string) *gorm.DB {
 
 	err := os.MkdirAll("./db", os.ModePerm)
 	if err != nil {
 		panic("failed to make ./db directory")
 	}
 
-	db, err := gorm.Open(sqlite.Open("./db/messages.db"), &gorm.Config{})
+	var dbConnection gorm.Dialector
+
+	if len(pgUrl) > 0 {
+		dbConnection = postgres.Open(pgUrl)
+	} else {
+		dbConnection = sqlite.Open("./db/messages.db")
+	}
+
+	db, err := gorm.Open(dbConnection, &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}

@@ -63,7 +63,7 @@ func (mdb *MicroDiaryBot) handleExport(ctx context.Context, bb *bot.Bot, update 
 
 	var messages []db.Message
 
-	if err := mdb.db.Find(&messages, "chat_id = ?", update.Message.Chat.ID).Error; err != nil {
+	if err := mdb.db.Order("date asc").Find(&messages, "chat_id = ?", update.Message.Chat.ID).Error; err != nil {
 		log.Fatalln(err)
 	}
 	log.Printf("Exporting chat %d messages: %d", update.Message.Chat.ID, len(messages))

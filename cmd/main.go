@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 	mdbot "github.com/ze-kel/microdiary/cmd/bot"
 	"github.com/ze-kel/microdiary/cmd/db"
+	storage "github.com/ze-kel/microdiary/cmd/filestorage"
 )
 
 func init() {
@@ -33,7 +35,29 @@ func initBot() {
 	}
 
 	database := db.Init(pgUrl)
-	m := mdbot.New(database, token)
+
+	var s storage.GenericStorage
+
+	bucketUrl, isBurl := os.LookupEnv("BUCKET_URL")
+	bucketName, isBname := os.LookupEnv("BUCKET_NAME")
+	bucketCredId, isBCI := os.LookupEnv("BUCKET_CRED_ID")
+	bucketCredSecret, isBCS := os.LookupEnv("BUCKET_CRED_SECRET")
+
+	if isBurl && isBname && isBCI && isBCS {
+		log.Printf("BUCKET_URL is set, using s3 storage")
+		s = storage.NewS3(context.Background(), storage.S3Params{
+			BucketName: bucketName,
+			Url:        bucketUrl,
+			ID:         bucketCredId,
+			Secret:     bucketCredSecret,
+		})
+	} else {
+
+		log.Printf("BUCKET_URL, BUCKET_NAME, BUCKET_CRED_ID or BUCKET_CRED_SECRET is not set, storing files in /db")
+		s = storage.NewLocal("./db")
+	}
+
+	m := mdbot.New(database, token, s)
 
 	m.Start()
 }
